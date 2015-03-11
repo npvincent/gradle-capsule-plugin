@@ -106,7 +106,14 @@ class Capsule extends Jar {
     applyApplicationSource()
     applyEmbedConfiguration()
 
-    manifest.attributes(capsuleManifest.buildManifestAttributes())
+    def attrs = capsuleManifest.buildAllManifestAttributes();
+    attrs.each { k, v ->
+      if(k){
+        manifest.attributes(v, k)
+      } else {
+        manifest.attributes(v)
+      }
+    }
   }
 
   protected void applyApplicationSource() {

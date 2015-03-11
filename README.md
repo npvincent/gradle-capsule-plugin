@@ -14,7 +14,7 @@ This readme assumes some familiarity with the [Capsule] project.
 
 ```groovy
 plugins {
-  id "us.kirchmeier.capsule" version "0.10.0"
+  id "us.kirchmeier.capsule" version "1.0-rc1"
 }
 ```
 
@@ -26,7 +26,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'us.kirchmeier:gradle-capsule-plugin:0.10.0'
+        classpath 'us.kirchmeier:gradle-capsule-plugin:1.0-rc1'
     }
 }
 
@@ -36,68 +36,30 @@ apply plugin: 'us.kirchmeier.capsule'
 
 # Quick Start
 
-A `FatCapsule` embeds your application and all dependencies into one jar.
+Two convenience task types are provided for reasonable behavior with minimal configuration:
 
-A `ThinCapsule` contains your application and will download your dependencies on startup.
+* `FatCapsule`, which embeds your application and all dependencies into one jar.
+* `MavenCapsule` which contains your application and downloads your dependencies on startup. It uses the [maven caplet](https://github.com/puniverse/capsule-maven).
 
-The `Capsule` task type is the core capsule provider and comes with almost no defaults.
-You may use it to create an "empty capsule" that will download your entire application from a maven repository on startup.
+Additional, the base `Capsule` type is provided with very few defaults and may be used for advanced use cases.
 
 ```groovy
 task fatCapsule(type: FatCapsule) {
   applicationClass 'com.foo.CoolCalculator'
 }
 
-task thinCapsule(type: ThinCapsule) {
+task mavenCapsule(type: MavenCapsule) {
   applicationClass 'com.foo.CoolCalculator'
-}
-
-task emptyCapsule(type: Capsule) {
-  application 'com.foo:CoolCalculator:LATEST'
 }
 ```
 
-
 # Documentation
-
-The `Capsule` tasks are all extentions upon the `Jar` task, with some additional configuration options available.
 
 To build a capsule, one of the following properties must be defined:
 
 * `applicationClass` - The Main class
 * `application` - A maven dependency containing a main class
-* `capsuleManifest.unixScript` - A startup script for unix machines
-* `capsuleManifest.windowsScript` - A startup script for windows machines
-
-## Task Defaults
-
-By default, all capsules have the 'capsule' classifier and use the main implementation of the capsule library.
-
-`FatCapsule` and `ThinCapsule` are task types which provide reasonable behavior with minimal configuration.
-Aside from these default values, there is no distinction between them and the base `Capsule` task type.
-
-```groovy
-task fatCapsuleDefaults(type:FatCapsule){
-  // Include the application's jar in the capsule
-  applicationSource jar
-
-  // Embed all runtime dependencies
-  embedConfiguration = configurations.runtime
-
-  // Limit the capsule library, since the dependencies are embedded
-  capsuleFilter = { include 'Capsule.class' }
-}
-
-task thinCapsuleDefaults(type:ThinCapsule){
-  // Include the application source in the capsule
-  applicationSource sourceSets.main.outputs
-
-  capsuleManifest {
-    // Add all runtime dependencies as downloadable dependencies
-    dependencyConfiguration = configurations.runtime
-  }
-}
-```
+* `capsuleManifest.applicationScript` - A startup script to run instead of applicationClass
 
 ## Manifest Options
 
@@ -110,19 +72,26 @@ Refer to the [Capsule] documentation for documentation on the properties.
 [src]: https://github.com/danthegoodman/gradle-capsule-plugin/blob/master/src/main/groovy/us/kirchmeier/capsule/manifest/CapsuleManifest.groovy
 
 ```groovy
-task myCapsule(type:ThinCapsule){
+task myCapsule(type:MavenCapsule){
   applicationClass 'com.foo.CoolCalculator'
 
-  capsuleManifest.systemProperties = ['java.awt.headless': true]
   capsuleManifest {
+    systemProperties['java.awt.headless'] = true
     repositories << 'jcenter'
   }
 }
 ```
 
+## Manifest Mode, Platform and JVM specific options
+
+DRK write
+
 ## Application Source
 
 `applicationSource` defines how the application is brought into the capsule.
+
+The `FatCapsule` defaults to output from the `jar` task.
+The `MavenCapsule` defaults to the compiled sources from `sourceSets.main.output`.
 
 It is passed directly into a `from(...)` on the underlying implementation, so it may be a task, file, sourceset or more.
 
@@ -136,6 +105,8 @@ task myCapsule(type:FatCapsule){
 ## Embedding Jars
 
 `embedConfiguration` defines which configuration contains the dependencies to embed.
+
+The `FatCapsule` defaults to the `runtime` configuration. The `MavenCapsule` has no default.
 
 ```groovy
 task myCapsule(type:FatCapsule){
@@ -151,8 +122,10 @@ task myCapsule(type:FatCapsule){
 `capsuleManifest.dependencies` is a list of strings which are also downloaded on startup.
 You may use this if you have a dependency you don't need gradle to care about.
 
+The `MavenCapsule` defaults the dependencyConfiguration to the `runtime` configuration. The `FatCapsule` has no default.
+
 ```groovy
-task myCapsule(type:ThinCapsule){
+task myCapsule(type:MavenCapsule){
   applicationClass 'com.foo.BeautifulCalculator'
   capsuleManifest {
     dependencyConfiguration configurations.runtime
@@ -178,7 +151,7 @@ task executableCapsule(type:FatCapsule){
   reallyExecutable //implies regular()
 }
 
-task trampolineCapsule(type:ThinCapsule){
+task trampolineCapsule(type:MavenCapsule){
   applicationClass 'com.foo.CoolCalculator'
   reallyExecutable { trampoline() }
 }
@@ -197,7 +170,11 @@ For advanced usage, `capsuleConfiguration` and `capsuleFilter` control where the
 You may override them to change implementations, or set them to null and provide your own implemntation somehow else.
 If you override these, you should also change the `capsuleManifest.mainClass` property.
 
-By default for all Capsule types, `capsuleConfiguration` is set to `configurations.capsule`, which is provided by this plugin.
+The base `Capsule` type has a default `capsuleConfiguration` of `configurations.capsule`, which is provided by this plugin.
+
+The `FatCapsule` type includes a `capsuleFilter` to include only the 'Capsule.class'file.
+
+The `MavenCapsule` type has a default `capsuleConfiguration` of `configurations.mavenCapsule`, which is provided by this plugin.
 
 ```groovy
 
@@ -209,8 +186,45 @@ dependencies {
   myCapsule 'com.foo:MyCapsuleImplementation:0.8'
 }
 
-task myCapsule(type: ThinCapsule){
+task myCapsule(type: MavenCapsule){
   applicationClass 'com.foo.CoolCalculator'
   capsuleConfiguration configurations.myCapsule
+}
+```
+
+
+## Type Heirarchy
+
+`Capsule` is the base class for both `FatCapsule` and `MavenCapsule`.
+It comes with almost no defaults, and is an ideal starting ground for advanced use cases.
+
+
+## Task Defaults
+
+By default, all capsules have the 'capsule' classifier and use the main implementation of the capsule library.
+
+`FatCapsule` and `MavenCapsule` are task types which provide reasonable behavior with minimal configuration.
+Aside from these default values, there is no distinction between them and the base `Capsule` task type.
+
+```groovy
+task fatCapsuleDefaults(type:Capsule){
+  // Include the application's jar in the capsule
+  applicationSource jar
+
+  // Embed all runtime dependencies
+  embedConfiguration = configurations.runtime
+
+  // Limit the capsule library, since the dependencies are embedded
+  capsuleFilter = { include 'Capsule.class' }
+}
+
+task mavenCapsuleDefaults(type:Capsule){
+  // Include the application source in the capsule
+  applicationSource sourceSets.main.outputs
+
+  capsuleManifest {
+    // Add all runtime dependencies as downloadable dependencies
+    dependencyConfiguration = configurations.runtime
+  }
 }
 ```
