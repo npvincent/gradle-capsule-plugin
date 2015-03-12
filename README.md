@@ -97,7 +97,7 @@ task myCapsule(type:FatCapsule){
 
 More thorough documentation is available in [`DOCUMENTATION.md`][docs].
 
-[docs]:https://github.com/danthegoodman/gradle-capsule-plugin/blob/master/CONTRIBUTING.md
+[docs]:https://github.com/danthegoodman/gradle-capsule-plugin/blob/master/DOCUMENTATION.md
 
 
 # Support
