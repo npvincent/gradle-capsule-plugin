@@ -47,7 +47,7 @@ With it, you may configure system properties, pass in arguments to your applicat
 Technically, `applicationClass` is a manifest attribute. 
 There base `applicationClass` property just applies the value into `capsuleManifest.applicationClass`.
 
-See also: [Capsule: Manifest Attributes][manifest-cap], [Source: `CapsuleManifest`][manifest-src]
+See also: [Capsule: Manifest Attributes][manifest-cap] and [Source: `CapsuleManifest`][manifest-src]
 
 [manifest-cap]:https://github.com/puniverse/capsule/tree/v1.0-rc1#manifest-attributes 
 [manifest-src]:https://github.com/danthegoodman/gradle-capsule-plugin/blob/master/src/main/groovy/us/kirchmeier/capsule/manifest/CapsuleManifest.groovy
@@ -88,6 +88,8 @@ Changing this value will allow you to configure caplets between different capsul
 
 `MavenCapsule` technically has a default of `mavenCaplet`, which includes this maven capsule, but this configuration
 extends the `caplet` dependency configuration.
+
+See Also: [Capsule: What are caplets?](https://github.com/puniverse/capsule/tree/v1.0-rc1#what-are-caplets)
 
 ```
 dependencies {
