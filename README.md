@@ -75,7 +75,7 @@ Without further configuration:
 Capsule allows you define attributes in your capsule to onfigure system properties, pass in arguments to your application, limit compatible JVM versions and more.
 You may configure these using the `capsuleManifest` block.
 
-See also: [Capsule: Manifest Attributes][manifest-cap], [Source: `CapsuleManifest`][manifest-src]
+See also: [Capsule: Manifest Attributes][manifest-cap] and [Source: `CapsuleManifest`][manifest-src]
 
 [manifest-cap]:https://github.com/puniverse/capsule/tree/v1.0-rc1#manifest-attributes 
 [manifest-src]:https://github.com/danthegoodman/gradle-capsule-plugin/blob/master/src/main/groovy/us/kirchmeier/capsule/manifest/CapsuleManifest.groovy
