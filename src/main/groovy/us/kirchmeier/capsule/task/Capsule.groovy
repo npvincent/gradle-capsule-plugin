@@ -11,18 +11,12 @@ class Capsule extends Jar {
    * The dependency configuration describing the main capsule classes.
    * <p>
    * Defaults to <code>configurations.capsule</code>, which has a dependency to the main capsule library.
-   * Without a filter, all files from all artifacts in the configuration will be extracted into the capsule.
+   * All files from all artifacts in the configuration will be extracted into the capsule.
    * </p><p>
    * If null, you are responsible for including the necessary capsule classes.
    * </p>
    */
   Configuration capsuleConfiguration
-
-  /**
-   * A filter, used to limit the capsule classes if the entire jar is not needed.
-   * <p>The closure delegates to a {@link org.gradle.api.file.CopySpec}.</p>
-   */
-  Closure capsuleFilter
 
   /**
    * The main object to include, representative of the primary application.
@@ -125,7 +119,7 @@ class Capsule extends Jar {
   protected void applyDefaultCapsuleSet() {
     if (!capsuleConfiguration) return
 
-    from(capsuleConfiguration.collect({ project.zipTree(it) }), capsuleFilter)
+    from(capsuleConfiguration.collect({ project.zipTree(it) }))
   }
 
   protected void applyEmbedConfiguration() {
