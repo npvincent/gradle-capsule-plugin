@@ -3,8 +3,9 @@ package us.kirchmeier.capsule.task
 class MavenCapsule extends Capsule {
 
   MavenCapsule() {
-    capsuleConfiguration = project.configurations.mavenCapsule
     applicationSource = project.tasks.findByName('jar')
+    capletConfiguration = project.configurations.mavenCaplet
+
     capsuleManifest {
       dependencyConfiguration = project.configurations.runtime
       caplets << 'MavenCapsule'

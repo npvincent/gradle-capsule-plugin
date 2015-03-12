@@ -78,6 +78,39 @@ task veryFancyCapsule(type:MavenCapsule){
 }
 ```
 
+## Caplets
+
+Adding a `caplet` dependency will include the caplet inside your capsules. 
+You will need to add the name of the caplet to `capsuleManifest.caplets`.
+ 
+All capsule tasks have a default `capletConfiguration` pointing to the `caplet` dependency configuration.
+Changing this value will allow you to configure caplets between different capsule tasks.
+
+`MavenCapsule` technically has a default of `mavenCaplet`, which includes this maven capsule, but this configuration
+extends the `caplet` dependency configuration.
+
+```
+dependencies {
+  caplet 'com.foo:capsule-awesome:1.0.0'
+}
+
+task capsule(type: MavenCapsule){
+  applicationClass 'com.foo.CoolCalculator'
+  
+  capsuleManifest {
+    caplets << 'AwesomeCapsule' //MavenCapsule already exists in this list at this point
+  }
+}
+
+task capsule(type: FatCapsule){
+  applicationClass 'com.foo.CoolCalculator'
+  
+  capsuleManifest {
+    caplets << 'AwesomeCapsule'
+  }
+}
+
+```
 
 ## Modes, OS specific and JVM specific options
 
@@ -236,7 +269,7 @@ Hello World!
 
 Preferrably, file an issue if the capsule version is out of date. 
 
-If you really wish to use a different version of capsule, you can rewrite the `capsule` dependency configuration:
+If you really wish to use a different version of capsule, you may use this snippet to rewrite a dependecy configuration:
  
 ```groovy
 configurations.capsule.dependencies.clear()
@@ -244,3 +277,8 @@ dependencies {
   capsule 'co.paralleluniverse:capsule:1.0-rc2'
 }
 ```
+
+The plugin provides two configurations: 
+
+* `capsule` which contains the main capsule jar.
+* `mavenCaplet` which contains the maven caplet jar.

@@ -17,10 +17,14 @@ class CapsuleGradlePlugin implements Plugin<Project> {
       ext.MavenCapsule = MavenCapsule.class
 
       configurations.create('capsule')
-      configurations.create('mavenCapsule')
+      configurations.create('mavenCaplet')
+      configurations.create('caplet')
+
+      configurations.mavenCaplet.extendsFrom(configurations.caplet)
+
       dependencies {
         capsule 'co.paralleluniverse:capsule:1.0-rc1'
-        mavenCapsule 'co.paralleluniverse:capsule-maven:1.0-rc1'
+        mavenCaplet 'co.paralleluniverse:capsule-maven:1.0-rc1'
       }
     }
   }
