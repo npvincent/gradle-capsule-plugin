@@ -114,6 +114,11 @@ class CapsuleManifest {
    */
   public Configuration dependencyConfiguration
 
+  public CapsuleManifest dependencyConfiguration(Configuration dependencyConfiguration) {
+    this.dependencyConfiguration = dependencyConfiguration
+    return this
+  }
+
   public void mode(String name, @DelegatesTo(CapsuleManifest) Closure configClosure){
     if(!name) throw new IllegalArgumentException("Capsule mode must be non-empty and non-null");
     if(groupMode) throw new IllegalArgumentException("Cannot overwrite capsule mode ${groupMode} with ${name}");

@@ -64,15 +64,27 @@ task platformCapsule(type: FatCapsule) {
   buildTests(delegate, executable: false, fat: true)
 }
 
-private void buildTests(Map options, Task t) {
-  def name = t.name
-  def f = t.outputs.files.singleFile
-  t.capsuleManifest.applicationId = "com.foo.${name}".toString()
+task recreatedMavenCapsule(type: Capsule){
+  applicationClass 'com.foo.Main'
+  classifier 'recreated'
+  applicationSource jar
+  capletConfiguration configurations.mavenCaplet
+  capsuleManifest{
+    dependencyConfiguration configurations.runtime
+    caplets << 'MavenCapsule'
+  }
+  buildTests(delegate, executable: false, maven: true)
+}
 
-  project.task("test-output-$name", dependsOn: [t]) << {
+private void buildTests(Map options, task) {
+  def name = task.name
+  def f = task.outputs.files.singleFile
+  task.capsuleManifest.applicationId = "com.foo.${name}".toString()
+
+  project.task("test-output-$name", dependsOn: [task]) << {
     testOutput(f, options)
   }
-  project.task("test-contents-$name", dependsOn: [t]) << {
+  project.task("test-contents-$name", dependsOn: [task]) << {
     testContents(f, options)
   }
   selfTest.dependsOn.addAll([
@@ -125,16 +137,16 @@ private void testContents(file, options) {
   }
 
   def jm = f.manifest.mainAttributes
-  if (options.fat) {
-    assert jm.size() == 4
-  } else if (options.maven) {
-    assert jm.size() == 6
-    assert jm.getValue('Dependencies') == 'junit:junit:4.11 org.apache.ant:ant:1.9.3(*:ant-launcher)'
-    assert jm.getValue('Caplets') == 'MavenCapsule'
-  }
   assert jm.getValue('Application-Id') ==~ /com\.foo\.\w+/
   assert jm.getValue('Manifest-Version') != null
   assert jm.getValue('Main-Class') == 'Capsule'
   assert jm.getValue('Application-Class') == 'com.foo.Main'
+  if (options.fat) {
+    assert jm.size() == 4
+  } else if (options.maven) {
+    assert jm.getValue('Dependencies') == 'junit:junit:4.11 org.apache.ant:ant:1.9.3(*:ant-launcher)'
+    assert jm.getValue('Caplets') == 'MavenCapsule'
+    assert jm.size() == 6
+  }
 
 }
